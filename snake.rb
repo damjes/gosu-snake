@@ -63,6 +63,13 @@ class OknoGlowne < Gosu::Window
 			@srodek << @poczatek
 			@poczatek = nowy
 		end
+
+		@kierunek = :lewo if Gosu.button_down? Gosu::KB_LEFT
+		@kierunek = :prawo if Gosu.button_down? Gosu::KB_RIGHT
+		@kierunek = :gora if Gosu.button_down? Gosu::KB_UP
+		@kierunek = :dol if Gosu.button_down? Gosu::KB_DOWN
+
+		exit if Gosu.button_down? Gosu::KB_ESCAPE
 	end
 
 	def draw
