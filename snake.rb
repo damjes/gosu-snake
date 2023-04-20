@@ -1,6 +1,7 @@
 require 'gosu'
 
 class Czlon
+	attr_reader :x, :y
 	def initialize(x, y, okno)
 		@x = x
 		@y = y
@@ -51,6 +52,7 @@ class OknoGlowne < Gosu::Window
 			@szerokosc_okna * @rozmiar_komorki,
 			@wysokosc_okna * @rozmiar_komorki)
 		self.caption = 'Snake'
+		daj_smaczek
 		@srodek = [
 			Czlon.new(10, 10, self),
 			Czlon.new(10, 11, self),
@@ -69,7 +71,11 @@ class OknoGlowne < Gosu::Window
 		if @licznik_klatek == 0
 			@licznik_klatek = @szybkosc
 			nowy = @poczatek.daj_nastepny @kierunek
-			@koniec = @srodek.shift
+			if @poczatek.x == @x_smaczka and @poczatek.y == @y_smaczka
+				daj_smaczek
+			else
+				@koniec = @srodek.shift
+			end
 			@srodek << @poczatek
 			@poczatek = nowy
 		end
@@ -93,6 +99,19 @@ class OknoGlowne < Gosu::Window
 		@srodek.each do |czlon|
 			czlon.rysuj
 		end
+		if @poczatek.x != @x_smaczka or @poczatek.y != @y_smaczka
+			Gosu.draw_rect(
+				@x_smaczka * @rozmiar_komorki + 2,
+				@y_smaczka * @rozmiar_komorki + 2,
+				@rozmiar_komorki - 4,
+				@rozmiar_komorki - 4,
+				Gosu::Color::YELLOW)
+		end
+	end
+
+	def daj_smaczek
+		@x_smaczka = rand(@szerokosc_okna)
+		@y_smaczka = rand(@wysokosc_okna)
 	end
 end
 
