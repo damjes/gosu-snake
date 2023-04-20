@@ -17,16 +17,26 @@ class Czlon
 	end
 
 	def daj_nastepny kierunek
+		x = @x
+		y = @y
+
 		case kierunek
 		when :prawo
-			Czlon.new(@x + 1, @y, @okno)
+			x += 1
 		when :lewo
-			Czlon.new(@x - 1, @y, @okno)
+			x -= 1
 		when :gora
-			Czlon.new(@x, @y - 1, @okno)
+			y -= 1
 		when :dol
-			Czlon.new(@x, @y + 1, @okno)
+			y += 1
 		end
+
+		x = 0 if x == @okno.szerokosc_okna
+		x = @okno.szerokosc_okna - 1 if x == -1
+		y = 0 if y == @okno.wysokosc_okna
+		y = @okno.wysokosc_okna - 1 if y == -1
+
+		Czlon.new(x, y, @okno)
 	end
 end
 
@@ -64,10 +74,15 @@ class OknoGlowne < Gosu::Window
 			@poczatek = nowy
 		end
 
-		@kierunek = :lewo if Gosu.button_down? Gosu::KB_LEFT
-		@kierunek = :prawo if Gosu.button_down? Gosu::KB_RIGHT
-		@kierunek = :gora if Gosu.button_down? Gosu::KB_UP
-		@kierunek = :dol if Gosu.button_down? Gosu::KB_DOWN
+		if Gosu.button_down? Gosu::KB_RIGHT and @kierunek != :lewo
+			@kierunek = :prawo
+		elsif Gosu.button_down? Gosu::KB_LEFT and @kierunek != :prawo
+			@kierunek = :lewo
+		elsif Gosu.button_down? Gosu::KB_UP and @kierunek != :dol
+			@kierunek = :gora
+		elsif Gosu.button_down? Gosu::KB_DOWN and @kierunek != :gora
+			@kierunek = :dol
+		end
 
 		exit if Gosu.button_down? Gosu::KB_ESCAPE
 	end
