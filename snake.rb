@@ -64,6 +64,8 @@ class OknoGlowne < Gosu::Window
 
 		@szybkosc = 15
 		@licznik_klatek = @szybkosc
+		@font = Gosu::Font.new(20)
+		@wynik = 0
 	end
 
 	def update
@@ -73,6 +75,7 @@ class OknoGlowne < Gosu::Window
 			nowy = @poczatek.daj_nastepny @kierunek
 			if @poczatek.x == @x_smaczka and @poczatek.y == @y_smaczka
 				daj_smaczek
+				@wynik += 1
 			else
 				@koniec = @srodek.shift
 			end
@@ -107,6 +110,25 @@ class OknoGlowne < Gosu::Window
 				@rozmiar_komorki - 4,
 				Gosu::Color::YELLOW)
 		end
+
+		napis = "Wynik: " + @wynik.to_s
+		@font.draw_text(
+			napis,
+			10,
+			10,
+			2,
+			1.0,
+			1.0,
+			Gosu::Color::GREEN)
+		@font.draw_text(
+			napis,
+			11,
+			11,
+			1,
+			1.0,
+			1.0,
+			Gosu::Color::BLACK)
+		
 	end
 
 	def daj_smaczek
