@@ -45,6 +45,7 @@ class OknoGlowne < Gosu::Window
 	attr_reader :szerokosc_okna, :wysokosc_okna, :rozmiar_komorki
 
 	def initialize
+		@stan = :gra
 		@szerokosc_okna = 40
 		@wysokosc_okna = 30
 		@rozmiar_komorki = 16
@@ -65,50 +66,72 @@ class OknoGlowne < Gosu::Window
 		@szybkosc = 15
 		@licznik_klatek = @szybkosc
 		@font = Gosu::Font.new(20)
+		@duzy_font = Gosu::Font.new(100)
 		@wynik = 0
 	end
 
 	def update
-		@licznik_klatek -= 1
-		if @licznik_klatek == 0
-			@licznik_klatek = @szybkosc
-			nowy = @poczatek.daj_nastepny @kierunek
-			if @poczatek.x == @x_smaczka and @poczatek.y == @y_smaczka
-				daj_smaczek
-				@wynik += 1
-			else
-				@koniec = @srodek.shift
+		if @stan == :gra
+			@licznik_klatek -= 1
+			if @licznik_klatek == 0
+				@licznik_klatek = @szybkosc
+				nowy = @poczatek.daj_nastepny @kierunek
+
+				kolizje = ([@koniec] + @srodek).select do |czlon|
+					czlon.x == nowy.x and czlon.y == nowy.y
+				end
+				unless kolizje.empty?
+					@stan = :koniec
+				end
+				if @poczatek.x == @x_smaczka and @poczatek.y == @y_smaczka
+					daj_smaczek
+					@wynik += 1
+				else
+					@koniec = @srodek.shift
+				end
+				@srodek << @poczatek
+				@poczatek = nowy
 			end
-			@srodek << @poczatek
-			@poczatek = nowy
-		end
 
-		if Gosu.button_down? Gosu::KB_RIGHT and @kierunek != :lewo
-			@kierunek = :prawo
-		elsif Gosu.button_down? Gosu::KB_LEFT and @kierunek != :prawo
-			@kierunek = :lewo
-		elsif Gosu.button_down? Gosu::KB_UP and @kierunek != :dol
-			@kierunek = :gora
-		elsif Gosu.button_down? Gosu::KB_DOWN and @kierunek != :gora
-			@kierunek = :dol
-		end
+			if Gosu.button_down? Gosu::KB_RIGHT and @kierunek != :lewo
+				@kierunek = :prawo
+			elsif Gosu.button_down? Gosu::KB_LEFT and @kierunek != :prawo
+				@kierunek = :lewo
+			elsif Gosu.button_down? Gosu::KB_UP and @kierunek != :dol
+				@kierunek = :gora
+			elsif Gosu.button_down? Gosu::KB_DOWN and @kierunek != :gora
+				@kierunek = :dol
+			end
 
+		end
 		exit if Gosu.button_down? Gosu::KB_ESCAPE
 	end
 
 	def draw
-		@poczatek.rysuj
-		@koniec.rysuj
-		@srodek.each do |czlon|
-			czlon.rysuj
-		end
-		if @poczatek.x != @x_smaczka or @poczatek.y != @y_smaczka
-			Gosu.draw_rect(
-				@x_smaczka * @rozmiar_komorki + 2,
-				@y_smaczka * @rozmiar_komorki + 2,
-				@rozmiar_komorki - 4,
-				@rozmiar_komorki - 4,
-				Gosu::Color::YELLOW)
+		if @stan == :gra
+			@poczatek.rysuj
+			@koniec.rysuj
+			@srodek.each do |czlon|
+				czlon.rysuj
+			end
+			if @poczatek.x != @x_smaczka or @poczatek.y != @y_smaczka
+				Gosu.draw_rect(
+					@x_smaczka * @rozmiar_komorki + 2,
+					@y_smaczka * @rozmiar_komorki + 2,
+					@rozmiar_komorki - 4,
+					@rozmiar_komorki - 4,
+					Gosu::Color::YELLOW)
+			end
+		else
+			napis = "Koniec gry"
+			@duzy_font.draw_text(
+				napis,
+				50,
+				100,
+				3,
+				1.0,
+				1.0,
+				Gosu::Color::WHITE)
 		end
 
 		napis = "Wynik: " + @wynik.to_s
